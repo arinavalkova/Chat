@@ -21,6 +21,10 @@ public class MessagesController {
         }});
     }};
 
+    private final Map<String, String> userNotFoundError = new HashMap<>() {{
+        put("code", "USER_NOT_FOUND");
+    }};
+
     @GetMapping("/users")
     public List<Map<String, String>> list() {
         return dataBase;
@@ -31,12 +35,12 @@ public class MessagesController {
         return dataBase.stream()
                 .filter(messages -> messages.get("id").equals(id))
                 .findFirst()
-                .orElseThrow(NotFoundException::new);
+                .orElse(userNotFoundError);
     }
 
     @PostMapping("/user")
     public Map<String, String> createUser(@RequestBody Map<String, String> user) {
-        user.put("id", String.valueOf(counter++));
+        user.put("id", String.valueOf(++counter));
         dataBase.add(user);
         return user;
     }
@@ -46,11 +50,5 @@ public class MessagesController {
         Map<String, String> userFromDataBase = getUserById(id);
         userFromDataBase.putAll(user);
         return userFromDataBase;
-    }
-
-    @DeleteMapping("user/{id}")
-    public void deleteUser(@PathVariable String id) {
-        Map<String, String> user = getUserById(id);
-        dataBase.remove(user);
     }
 }
